@@ -679,7 +679,7 @@ def save_message():
     return jsonify({'message': 'success'}), 200
 
 @app.route('/visit_log', methods=['POST','GET'])
-def save_message():
+def visit_log():
     # Get the current date and time
     current_datetime = datetime.now()
 
