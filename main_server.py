@@ -37,6 +37,13 @@ mess_db_config = {
     'database': os.environ.get('RDS_DB_MESS_NAME'),
 }
 
+visit_db_config = {
+    'host': os.environ.get('AWS_RDS_URI'),
+    'user': os.environ.get('RDS_USERNAME'),
+    'password': os.environ.get('RDS_PASSWORD'),
+    'database': os.environ.get('RDS_DB_VIS_LOG'),
+}
+
 COOKIE_NAME = os.environ.get('COOKIE_NAME')
 
 uri = f"mongodb+srv://{MONGO_DB_USERNAME}:{MONGO_DB_PW}@cluster0.wvhyisx.mongodb.net/?retryWrites=true&w=majority"
@@ -118,10 +125,7 @@ def signup_user():
         cursor.execute(query)
         conn.commit()
 
-        cursor.execute(f"SELECT id FROM user_info WHERE userID = '{username}'")
-        nosqlID = cursor.fetchone()
-        nosqlID = nosqlID[0]
-        col.insert_one({"_id": nosqlID,"income_types":[],"expense_types":[],"budget":{}})
+        cursor.execute(f"SELECT id FROM shadcn_users WHERE userID = '{username}'")
         
         #User is redirected to the login page to sign in
         return jsonify({'message' : 'success'})
@@ -668,6 +672,23 @@ def save_message():
     cursor = conn.cursor()
     # Crestes and commits a quesry to delete the entry from the database
     query = f"INSERT INTO messages VALUES (DEFAULT, '{name}', '{email}', '{mess}');"
+    cursor.execute(query)
+    conn.commit()
+    conn.close
+        
+    return jsonify({'message': 'success'}), 200
+
+@app.route('/visit_log', methods=['POST','GET'])
+def save_message():
+    # Get the current date and time
+    current_datetime = datetime.now()
+
+    # Convert to string
+    curr_date = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    conn = mysql.connector.connect(**visit_db_config)
+    cursor = conn.cursor()
+    # Crestes and commits a quesry to delete the entry from the database
+    query = f"INSERT INTO v_log VALUES (DEFAULT, '{curr_date}');"
     cursor.execute(query)
     conn.commit()
     conn.close
